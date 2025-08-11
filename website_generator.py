@@ -103,15 +103,39 @@ class WebsiteGenerator:
             
             {% if article.reactions %}
             <div class="reactions">
-                <strong>Public opinions:</strong>
+                <strong>🔥 Viral Reactions & Public Opinions:</strong>
                 {% for reaction in article.reactions %}
                 <div class="reaction">
-                    <span class="platform">{{ reaction.platform }}</span>
+                    <div class="reaction-header">
+                        <span class="platform platform-{{ reaction.platform }}">{{ reaction.platform|title }}</span>
+                        {% if reaction.engagement %}
+                            {% if reaction.platform == 'twitter' %}
+                                <span class="engagement">
+                                    ❤️ {{ reaction.engagement.likes|default(0) }} 
+                                    🔄 {{ reaction.engagement.retweets|default(0) }}
+                                    💬 {{ reaction.engagement.replies|default(0) }}
+                                </span>
+                            {% elif reaction.platform == 'reddit' %}
+                                <span class="engagement">
+                                    ⬆️ {{ reaction.engagement.upvotes|default(0) }}
+                                    💬 {{ reaction.engagement.comments|default(0) }}
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                     <blockquote class="reaction-text">{{ reaction.text }}</blockquote>
                     <div class="reaction-meta">
-                        <span class="author">{{ reaction.author }}</span>
+                        <span class="author">
+                            {% if reaction.platform == 'twitter' %}
+                                🐦 @{{ reaction.author }}
+                            {% elif reaction.platform == 'reddit' %}
+                                📱 {{ reaction.author }}
+                            {% else %}
+                                👤 {{ reaction.author }}
+                            {% endif %}
+                        </span>
                         {% if reaction.permalink %}
-                        <a href="{{ reaction.permalink }}" target="_blank" rel="noopener">View</a>
+                        <a href="{{ reaction.permalink }}" target="_blank" rel="noopener" class="view-link">🔗 View Original</a>
                         {% endif %}
                     </div>
                 </div>
@@ -124,6 +148,9 @@ class WebsiteGenerator:
             <div class="score-badges">
                 <span class="badge category-{{ article.category }}">{{ article.category|title }}</span>
                 <span class="badge score-final">{{ "%.1f"|format(article.scores.final) }}</span>
+                {% if article.scores.india_boost and article.scores.india_boost > 0 %}
+                <span class="badge score-india-boost">🇮🇳 +{{ article.scores.india_boost }}</span>
+                {% endif %}
                 <span class="badge score-virality">{{ "%.1f"|format(article.scores.virality) }}</span>
                 <span class="badge score-impact">{{ "%.1f"|format(article.scores.impact) }}</span>
                 <span class="badge score-controversy">{{ "%.1f"|format(article.scores.controversy) }}</span>
@@ -399,9 +426,42 @@ body {
 
 .reaction {
     background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 8px;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #1a73e8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reaction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
+}
+
+.platform {
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.platform-twitter {
+    background: #1da1f2;
+    color: white;
+}
+
+.platform-reddit {
+    background: #ff4500;
+    color: white;
+}
+
+.engagement {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
 }
 
 .reaction-text {
@@ -476,6 +536,12 @@ body {
 .badge.score-controversy {
     background: #ffebee;
     color: #c62828;
+}
+
+.badge.score-india-boost {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 2px solid #4caf50;
 }
 
 .tags {

@@ -128,9 +128,10 @@ SCRAPING_CONFIG = {
 
 # Ranking weights
 RANKING_WEIGHTS = {
-    'virality': 0.5,
+    'virality': 0.4,
     'impact': 0.35,
-    'controversy': 0.15
+    'controversy': 0.15,
+    'india_boost': 0.1  # Additional boost for India-specific news
 }
 
 # Impact scoring criteria
@@ -160,8 +161,12 @@ IMPACT_CRITERIA = {
         'score': 15
     },
     'india_macro': {
-        'keywords': ['india', 'indian', 'delhi', 'mumbai', 'bangalore', 'hyderabad', 'chennai'],
-        'score': 10
+        'keywords': ['india', 'indian', 'delhi', 'mumbai', 'bangalore', 'hyderabad', 'chennai', 'kolkata', 'pune', 'ahmedabad'],
+        'score': 25  # Increased score for India relevance
+    },
+    'india_startup_ecosystem': {
+        'keywords': ['startup india', 'make in india', 'digital india', 'indian startup', 'indian tech', 'indian startup ecosystem'],
+        'score': 30  # High score for India startup ecosystem
     },
     'ai_ml': {
         'keywords': ['ai', 'artificial intelligence', 'machine learning', 'ml', 'neural', 'gpt'],

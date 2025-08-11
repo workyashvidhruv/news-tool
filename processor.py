@@ -243,11 +243,23 @@ class NewsProcessor:
             virality_score = virality_scores.get(url, 0)
             controversy_score = controversy_scores.get(url, 0)
             
-            # Calculate final score
+            # Calculate India boost
+            india_boost = 0
+            title = article.get('title', '').lower()
+            text = article.get('text', '').lower()
+            combined_text = f"{title} {text}"
+            
+            # Check for India-specific keywords
+            india_keywords = ['india', 'indian', 'delhi', 'mumbai', 'bangalore', 'hyderabad', 'chennai', 'kolkata', 'pune', 'ahmedabad']
+            if any(keyword in combined_text for keyword in india_keywords):
+                india_boost = 25  # Boost India news by 25 points
+            
+            # Calculate final score with India boost
             final_score = (
                 RANKING_WEIGHTS['virality'] * virality_score +
                 RANKING_WEIGHTS['impact'] * impact_score +
-                RANKING_WEIGHTS['controversy'] * controversy_score
+                RANKING_WEIGHTS['controversy'] * controversy_score +
+                india_boost
             )
             
             # Store scores
@@ -255,6 +267,7 @@ class NewsProcessor:
                 'virality': virality_score,
                 'impact': impact_score,
                 'controversy': controversy_score,
+                'india_boost': india_boost,
                 'final': final_score
             }
             
@@ -308,4 +321,8 @@ class NewsProcessor:
         ranked_articles = self.rank_articles(unique_articles)
         logger.info(f"Ranking completed for {len(ranked_articles)} articles")
         
-        return ranked_articles 
+        # Step 3: Limit to top 15 stories for enhanced social reactions
+        top_articles = ranked_articles[:15]
+        logger.info(f"Selected top {len(top_articles)} articles for enhanced processing")
+        
+        return top_articles 

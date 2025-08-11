@@ -88,10 +88,22 @@ class NewsPipeline:
                 logger.warning("No articles processed successfully. Pipeline cannot continue.")
                 return False
             
-            # Step 4: Scrape social reactions
-            logger.info("Step 4: Scraping social reactions...")
+            # Step 4: Scrape enhanced social reactions for top 15 stories
+            logger.info("Step 4: Scraping enhanced social reactions for top stories...")
             try:
-                reactions = self.social_scraper.scrape_all_reactions(processed_articles)
+                # Get more reactions for top stories (up to 5 per story)
+                reactions = {}
+                for i, article in enumerate(processed_articles):
+                    if i < 15:  # Only top 15 stories get enhanced reactions
+                        logger.info(f"Getting enhanced reactions for story {i+1}: {article['title'][:50]}...")
+                        article_reactions = self.social_scraper.get_top_reactions(article, max_reactions=5)
+                        reactions[article.get('url', '')] = article_reactions
+                        logger.info(f"Found {len(article_reactions)} reactions for: {article['title'][:50]}...")
+                    else:
+                        # Basic reactions for remaining stories
+                        article_reactions = self.social_scraper.get_top_reactions(article, max_reactions=2)
+                        reactions[article.get('url', '')] = article_reactions
+                
                 logger.info(f"Found social reactions for {len(reactions)} articles")
             except Exception as e:
                 logger.error(f"Social reactions scraping failed: {e}")
@@ -102,7 +114,8 @@ class NewsPipeline:
                 url = article.get('url', '')
                 if url in reactions:
                     article['reactions'] = reactions[url]
-                    logger.info(f"Added {len(reactions[url])} reactions for: {article['title'][:50]}...")
+                    reaction_count = len(reactions[url])
+                    logger.info(f"Added {reaction_count} reactions for: {article['title'][:50]}...")
                 else:
                     article['reactions'] = []
                     logger.info(f"No social reactions found for: {article['title'][:50]}...")

@@ -96,126 +96,180 @@ class SocialReactionsScraper:
         if not keywords:
             return reactions
         
-        # Search for tweets about this story
+        # Search for tweets about this story with multiple search strategies
         search_terms = ' '.join(keywords[:3])  # Use top 3 keywords
-        search_url = f"https://twitter.com/search?q={quote_plus(search_terms)}&src=typed_query&f=live"
         
-        response = self._make_request(search_url)
-        if not response:
-            return reactions
+        # Try multiple search approaches for better coverage
+        search_urls = [
+            f"https://twitter.com/search?q={quote_plus(search_terms)}&src=typed_query&f=live",
+            f"https://twitter.com/search?q={quote_plus(search_terms)}&src=typed_query&f=top",
+            f"https://twitter.com/search?q={quote_plus(search_terms)}&src=typed_query&f=latest"
+        ]
         
-        try:
-            soup = BeautifulSoup(response.content, 'html.parser')
+        for search_url in search_urls:
+            response = self._make_request(search_url)
+            if not response:
+                continue
             
-            # Look for tweet elements (this is a simplified approach)
-            tweet_elements = soup.find_all('article')
-            
-            for tweet in tweet_elements[:10]:  # Limit to first 10 tweets
-                try:
-                    # Extract tweet text
-                    text_elem = tweet.find('div', {'data-testid': 'tweetText'})
-                    if not text_elem:
+            try:
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                # Look for tweet elements (this is a simplified approach)
+                tweet_elements = soup.find_all('article')
+                
+                for tweet in tweet_elements[:15]:  # Increased limit to 15 tweets
+                    try:
+                        # Extract tweet text
+                        text_elem = tweet.find('div', {'data-testid': 'tweetText'})
+                        if not text_elem:
+                            continue
+                        
+                        text = text_elem.get_text().strip()
+                        if len(text) < 10:  # Skip very short tweets
+                            continue
+                        
+                        # Extract engagement metrics (simplified)
+                        engagement = {
+                            'likes': 0,
+                            'retweets': 0,
+                            'replies': 0
+                        }
+                        
+                        # Try to find engagement elements
+                        like_elem = tweet.find('div', {'data-testid': 'like'})
+                        if like_elem:
+                            like_text = like_elem.get_text()
+                            if like_text.isdigit():
+                                engagement['likes'] = int(like_text)
+                        
+                        # Extract author info
+                        author_elem = tweet.find('span', {'class': 'css-901oao'})
+                        author = author_elem.get_text() if author_elem else "Unknown"
+                        
+                        # Try to extract permalink (simplified approach)
+                        # In a real implementation, you'd need to parse the tweet structure more carefully
+                        permalink = f"https://twitter.com/{author}/status/{hash(text)}"  # Placeholder
+                        
+                        # Create reaction object
+                        reaction = {
+                            'platform': 'twitter',
+                            'text': text[:200] + '...' if len(text) > 200 else text,
+                            'author': author,
+                            'engagement': engagement,
+                            'permalink': permalink,
+                            'score': engagement['likes'] + engagement['retweets'] * 2 + engagement['replies'],
+                            'viral_score': engagement['likes'] + engagement['retweets'] * 3  # Higher weight for retweets
+                        }
+                        
+                        # Only include if permalink format is valid
+                        if self._is_permalink_reachable(permalink):
+                            reactions.append(reaction)
+                        
+                    except Exception as e:
+                        logger.warning(f"Error parsing tweet: {e}")
                         continue
+                
+                # If we found enough reactions, break
+                if len(reactions) >= 10:
+                    break
                     
-                    text = text_elem.get_text().strip()
-                    if len(text) < 10:  # Skip very short tweets
-                        continue
-                    
-                    # Extract engagement metrics (simplified)
-                    engagement = {
-                        'likes': 0,
-                        'retweets': 0,
-                        'replies': 0
-                    }
-                    
-                    # Try to find engagement elements
-                    like_elem = tweet.find('div', {'data-testid': 'like'})
-                    if like_elem:
-                        like_text = like_elem.get_text()
-                        if like_text.isdigit():
-                            engagement['likes'] = int(like_text)
-                    
-                    # Extract author info
-                    author_elem = tweet.find('span', {'class': 'css-901oao'})
-                    author = author_elem.get_text() if author_elem else "Unknown"
-                    
-                    # Try to extract permalink (simplified approach)
-                    # In a real implementation, you'd need to parse the tweet structure more carefully
-                    permalink = f"https://twitter.com/{author}/status/{hash(text)}"  # Placeholder
-                    
-                    # Create reaction object
-                    reaction = {
-                        'platform': 'twitter',
-                        'text': text[:200] + '...' if len(text) > 200 else text,
-                        'author': author,
-                        'engagement': engagement,
-                        'permalink': permalink,
-                        'score': engagement['likes'] + engagement['retweets'] * 2 + engagement['replies']
-                    }
-                    
-                    # Only include if permalink format is valid
-                    if self._is_permalink_reachable(permalink):
-                        reactions.append(reaction)
-                    
-                except Exception as e:
-                    logger.warning(f"Error parsing tweet: {e}")
-                    continue
+            except Exception as e:
+                logger.error(f"Error scraping Twitter reactions: {e}")
         
-        except Exception as e:
-            logger.error(f"Error scraping Twitter reactions: {e}")
-        
-        return reactions
+        # Sort by viral score and return top reactions
+        reactions.sort(key=lambda x: x.get('viral_score', 0), reverse=True)
+        return reactions[:10]  # Return top 10 viral tweets
     
     def scrape_reddit_reactions(self, article: Dict) -> List[Dict]:
         """Scrape Reddit reactions for an article"""
         reactions = []
         title = article.get('title', '')
         url = article.get('url', '')
+        keywords = self._extract_keywords(title)
         
-        # Search for Reddit posts linking to this article
-        search_url = f"https://reddit.com/search.json?q=url:{quote_plus(url)}&restrict_sr=on&sort=relevance&t=day"
+        # Multiple search strategies for better coverage
+        search_queries = []
         
-        response = self._make_request(search_url)
-        if not response:
-            return reactions
+        # 1. Direct URL search
+        if url:
+            search_queries.append(f"url:{quote_plus(url)}")
         
-        try:
-            data = response.json()
+        # 2. Keyword-based search in relevant subreddits
+        if keywords:
+            keyword_query = ' '.join(keywords[:3])
+            search_queries.extend([
+                f"subreddit:technology {keyword_query}",
+                f"subreddit:startups {keyword_query}",
+                f"subreddit:indianstartups {keyword_query}",
+                f"subreddit:india {keyword_query}"
+            ])
+        
+        # 3. Title-based search
+        if title:
+            search_queries.append(f"title:\"{title[:50]}\"")
+        
+        for query in search_queries:
+            # Try different time periods and sorting
+            search_urls = [
+                f"https://reddit.com/search.json?q={quote_plus(query)}&restrict_sr=on&sort=top&t=day",
+                f"https://reddit.com/search.json?q={quote_plus(query)}&restrict_sr=on&sort=hot&t=week",
+                f"https://reddit.com/search.json?q={quote_plus(query)}&restrict_sr=on&sort=comments&t=month"
+            ]
             
-            for post in data.get('data', {}).get('children', []):
-                post_data = post['data']
+            for search_url in search_urls:
+                response = self._make_request(search_url)
+                if not response:
+                    continue
                 
-                # Extract post info
-                post_title = post_data.get('title', '')
-                post_text = post_data.get('selftext', '')
-                subreddit = post_data.get('subreddit', '')
-                score = post_data.get('score', 0)
-                num_comments = post_data.get('num_comments', 0)
-                permalink = f"https://reddit.com{post_data.get('permalink', '')}"
-                
-                # Create reaction object
-                reaction = {
-                    'platform': 'reddit',
-                    'text': post_text[:200] + '...' if len(post_text) > 200 else post_text,
-                    'author': f"r/{subreddit}",
-                    'engagement': {
-                        'upvotes': score,
-                        'comments': num_comments
-                    },
-                    'permalink': permalink,
-                    'score': score + (num_comments * 0.1)
-                }
-                
-                # Only include if permalink format is valid
-                if self._is_permalink_reachable(permalink):
-                    reactions.append(reaction)
+                try:
+                    data = response.json()
+                    
+                    for post in data.get('data', {}).get('children', []):
+                        post_data = post['data']
+                        
+                        # Extract post info
+                        post_title = post_data.get('title', '')
+                        post_text = post_data.get('selftext', '')
+                        subreddit = post_data.get('subreddit', '')
+                        score = post_data.get('score', 0)
+                        num_comments = post_data.get('num_comments', 0)
+                        permalink = f"https://reddit.com{post_data.get('permalink', '')}"
+                        
+                        # Create reaction object
+                        reaction = {
+                            'platform': 'reddit',
+                            'text': post_text[:200] + '...' if len(post_text) > 200 else post_text,
+                            'author': f"r/{subreddit}",
+                            'engagement': {
+                                'upvotes': score,
+                                'comments': num_comments
+                            },
+                            'permalink': permalink,
+                            'score': score + (num_comments * 0.1),
+                            'viral_score': score + (num_comments * 0.5)  # Weight comments more for Reddit
+                        }
+                        
+                        # Only include if permalink format is valid
+                        if self._is_permalink_reachable(permalink):
+                            reactions.append(reaction)
+                        
+                        # Limit reactions per query to avoid duplicates
+                        if len(reactions) >= 15:
+                            break
+                    
+                    # If we found enough reactions, break
+                    if len(reactions) >= 15:
+                        break
+                        
+                except Exception as e:
+                    logger.warning(f"Error parsing Reddit post: {e}")
+                    continue
         
-        except Exception as e:
-            logger.error(f"Error scraping Reddit reactions: {e}")
-        
-        return reactions
+        # Sort by viral score and return top reactions
+        reactions.sort(key=lambda x: x.get('viral_score', 0), reverse=True)
+        return reactions[:15]  # Return top 15 Reddit reactions
     
-    def get_top_reactions(self, article: Dict, max_reactions: int = 2) -> List[Dict]:
+    def get_top_reactions(self, article: Dict, max_reactions: int = 5) -> List[Dict]:
         """Get top reactions for an article from all platforms"""
         all_reactions = []
         
@@ -227,8 +281,8 @@ class SocialReactionsScraper:
         reddit_reactions = self.scrape_reddit_reactions(article)
         all_reactions.extend(reddit_reactions)
         
-        # Sort by engagement score
-        all_reactions.sort(key=lambda x: x['score'], reverse=True)
+        # Sort by viral score (prioritize viral content)
+        all_reactions.sort(key=lambda x: x.get('viral_score', x.get('score', 0)), reverse=True)
         
         # Select top reactions with diverse viewpoints
         selected_reactions = []
