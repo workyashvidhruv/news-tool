@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_title }}{% endblock %}</title>
+    <meta name="description" content="{{ site_description }}">
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+        }
+        
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">{{ site_title }}</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Today</a>
+                <a href="archive.html" class="nav-link">Archive</a>
+                <a href="stats.html" class="nav-link">Stats</a>
+                <button onclick="toggleDarkMode()" class="dark-mode-toggle" title="Toggle dark mode">
+                    🌙
+                </button>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; {{ current_year }} {{ site_title }}. Updated daily with ranked startup and tech news.</p>
+        </div>
+    </footer>
+</body>
+</html>

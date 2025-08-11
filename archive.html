@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Startup & Tech News — Archive</title>
+    <meta name="description" content="Daily ranked startup and tech news from India and around the world">
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+        }
+        
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">Top Startup & Tech News</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Today</a>
+                <a href="archive.html" class="nav-link">Archive</a>
+                <a href="stats.html" class="nav-link">Stats</a>
+                <button onclick="toggleDarkMode()" class="dark-mode-toggle" title="Toggle dark mode">
+                    🌙
+                </button>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            
+<div class="page-header">
+    <h2>News Archive</h2>
+    <p class="subtitle">Browse past editions and search through historical data</p>
+</div>
+
+<div class="archive-controls">
+    <form class="search-form" method="GET">
+        <input type="text" name="q" placeholder="Search articles..." value="">
+        <select name="category">
+            <option value="">All Categories</option>
+            <option value="india" >India</option>
+            <option value="global" >Global</option>
+        </select>
+        <select name="tag">
+            <option value="">All Tags</option>
+            <option value="funding" >Funding</option>
+            <option value="m&a" >M&A</option>
+            <option value="layoffs" >Layoffs</option>
+            <option value="policy" >Policy</option>
+            <option value="product" >Product</option>
+            <option value="security" >Security</option>
+            <option value="ai" >AI/ML</option>
+            <option value="crypto" >Crypto</option>
+            <option value="ipo" >IPO</option>
+        </select>
+        <input type="number" name="min_score" placeholder="Min Score" value="0" min="0" max="100" step="0.1">
+        <button type="submit">Search</button>
+        <button type="button" onclick="clearFilters()" class="clear-filters">Clear</button>
+    </form>
+</div>
+
+<script>
+function clearFilters() {
+    window.location.href = window.location.pathname;
+}
+</script>
+
+
+<div class="editions-list">
+    
+    <div class="edition-card">
+        <div class="edition-header">
+            <h3><a href="edition_2025-08-10.html">2025-08-10</a></h3>
+            <span class="article-count">203 articles</span>
+        </div>
+        
+        
+        <div class="top-stories">
+            <strong>Top stories:</strong>
+            <ul>
+                
+                <li>
+                    <span class="rank">#1</span>
+                    <a href="https://arstechnica.com/tech-policy/2025/08/ai-industry-horrified-to-face-largest-copyright-class-action-ever-certified/" target="_blank" rel="noopener">AI industry horrified to face largest copyright class action ever certified</a>
+                    <span class="score">55.2</span>
+                </li>
+                
+                <li>
+                    <span class="rank">#2</span>
+                    <a href="https://apnews.com/article/trump-executive-order-federal-funding-grants-nih-fema-4b4b6c23a25a8ae3fdc7b43c4586c999" target="_blank" rel="noopener">Trump executive order gives politicians control over all federal grants, alarming researchers</a>
+                    <span class="score">41.7</span>
+                </li>
+                
+                <li>
+                    <span class="rank">#3</span>
+                    <a href="https://www.wired.com/story/ex-nsa-chief-paul-nakasone-has-a-warning-for-the-tech-world/" target="_blank" rel="noopener">Ex-NSA Chief Paul Nakasone Has a Warning for the Tech World</a>
+                    <span class="score">39.2</span>
+                </li>
+                
+                <li>
+                    <span class="rank">#4</span>
+                    <a href="https://inc42.com/features/fy25-financial-tracker-tracking-the-financial-performance-of-indian-startups/" target="_blank" rel="noopener">FY25 Financial Tracker: Tracking The Financial Performance Of Indian Startups</a>
+                    <span class="score">35.0</span>
+                </li>
+                
+                <li>
+                    <span class="rank">#5</span>
+                    <a href="https://www.wired.com/review/matter-and-form-three-3d-scanner/" target="_blank" rel="noopener">Review: Matter and Form Three 3D Scanner</a>
+                    <span class="score">35.0</span>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+    
+</div>
+
+
+
+
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Top Startup & Tech News. Updated daily with ranked startup and tech news.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_title }} — Archive{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>News Archive</h2>
+    <p class="subtitle">Browse past editions and search through historical data</p>
+</div>
+
+<div class="archive-controls">
+    <form class="search-form" method="GET">
+        <input type="text" name="q" placeholder="Search articles..." value="{{ search_query }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            <option value="india" {% if category_filter == 'india' %}selected{% endif %}>India</option>
+            <option value="global" {% if category_filter == 'global' %}selected{% endif %}>Global</option>
+        </select>
+        <select name="tag">
+            <option value="">All Tags</option>
+            <option value="funding" {% if tag_filter == 'funding' %}selected{% endif %}>Funding</option>
+            <option value="m&a" {% if tag_filter == 'm&a' %}selected{% endif %}>M&A</option>
+            <option value="layoffs" {% if tag_filter == 'layoffs' %}selected{% endif %}>Layoffs</option>
+            <option value="policy" {% if tag_filter == 'policy' %}selected{% endif %}>Policy</option>
+            <option value="product" {% if tag_filter == 'product' %}selected{% endif %}>Product</option>
+            <option value="security" {% if tag_filter == 'security' %}selected{% endif %}>Security</option>
+            <option value="ai" {% if tag_filter == 'ai' %}selected{% endif %}>AI/ML</option>
+            <option value="crypto" {% if tag_filter == 'crypto' %}selected{% endif %}>Crypto</option>
+            <option value="ipo" {% if tag_filter == 'ipo' %}selected{% endif %}>IPO</option>
+        </select>
+        <input type="number" name="min_score" placeholder="Min Score" value="{{ min_score }}" min="0" max="100" step="0.1">
+        <button type="submit">Search</button>
+        <button type="button" onclick="clearFilters()" class="clear-filters">Clear</button>
+    </form>
+</div>
+
+<script>
+function clearFilters() {
+    window.location.href = window.location.pathname;
+}
+</script>
+
+{% if editions %}
+<div class="editions-list">
+    {% for edition in editions %}
+    <div class="edition-card">
+        <div class="edition-header">
+            <h3><a href="edition_{{ edition.date }}.html">{{ edition.date }}</a></h3>
+            <span class="article-count">{{ edition.total_articles }} articles</span>
+        </div>
+        
+        {% if edition.top_stories %}
+        <div class="top-stories">
+            <strong>Top stories:</strong>
+            <ul>
+                {% for story in edition.top_stories %}
+                <li>
+                    <span class="rank">#{{ story.rank }}</span>
+                    <a href="{{ story.url }}" target="_blank" rel="noopener">{{ story.title }}</a>
+                    <span class="score">{{ "%.1f"|format(story.score) }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-editions">
+    <p>No archived editions found.</p>
+</div>
+{% endif %}
+
+{% if search_results %}
+<div class="search-results">
+    <h3>Search Results ({{ search_results|length }} found)</h3>
+    {% for result in search_results %}
+    <div class="search-result">
+        <div class="result-date">{{ result.date }}</div>
+        <h4><a href="{{ result.article.url }}" target="_blank" rel="noopener">{{ result.article.title }}</a></h4>
+        <p>{{ result.article.summary }}</p>
+        <div class="result-meta">
+            <span class="category">{{ result.article.category }}</span>
+            <span class="score">{{ "%.1f"|format(result.article.scores.final) }}</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

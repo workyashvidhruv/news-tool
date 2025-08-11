@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Startup & Tech News — Statistics</title>
+    <meta name="description" content="Daily ranked startup and tech news from India and around the world">
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+        }
+        
+        // Load dark mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">Top Startup & Tech News</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Today</a>
+                <a href="archive.html" class="nav-link">Archive</a>
+                <a href="stats.html" class="nav-link">Stats</a>
+                <button onclick="toggleDarkMode()" class="dark-mode-toggle" title="Toggle dark mode">
+                    🌙
+                </button>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <div class="container">
+            
+<div class="page-header">
+    <h2>News Analytics Dashboard</h2>
+    <p class="subtitle">Insights and statistics from the news aggregation pipeline</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>📊 Overview</h3>
+        <div class="stat-item">
+            <span class="stat-label">Total Editions:</span>
+            <span class="stat-value">1</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Articles:</span>
+            <span class="stat-value">203</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Date Range:</span>
+            <span class="stat-value">2025-08-10 to 2025-08-10</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <h3>🏷️ Top Categories</h3>
+        
+        <div class="stat-item">
+            <span class="stat-label">Global:</span>
+            <span class="stat-value">156</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">India:</span>
+            <span class="stat-value">47</span>
+        </div>
+        
+    </div>
+
+    <div class="stat-card">
+        <h3>📰 Top Sources</h3>
+        
+        <div class="stat-item">
+            <span class="stat-label">Reuters Technology:</span>
+            <span class="stat-value">98</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">r/technology:</span>
+            <span class="stat-value">25</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Wired:</span>
+            <span class="stat-value">22</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">YourStory:</span>
+            <span class="stat-value">19</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Livemint:</span>
+            <span class="stat-value">17</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Inc42:</span>
+            <span class="stat-value">10</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">The Verge:</span>
+            <span class="stat-value">9</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">TechCrunch:</span>
+            <span class="stat-value">2</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">r/indianstartups:</span>
+            <span class="stat-value">1</span>
+        </div>
+        
+    </div>
+
+    <div class="stat-card">
+        <h3>📈 Recent Activity</h3>
+        <div class="recent-activity">
+            
+            <div class="activity-item">
+                <span class="activity-date">2025-08-10</span>
+                <span class="activity-count">203 articles</span>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="charts-section">
+    <h3>📊 Visual Analytics</h3>
+    <div class="chart-container">
+        <canvas id="categoryChart" width="400" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="sourceChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Category distribution chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ["global", "india"],
+        datasets: [{
+            data: [156, 47],
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Article Distribution by Category'
+            }
+        }
+    }
+});
+
+// Source distribution chart
+const sourceCtx = document.getElementById('sourceChart').getContext('2d');
+const sourceChart = new Chart(sourceCtx, {
+    type: 'bar',
+    data: {
+        labels: ["Reuters Technology", "r/technology", "Wired", "YourStory", "Livemint", "Inc42", "The Verge", "TechCrunch", "r/indianstartups"],
+        datasets: [{
+            label: 'Articles',
+            data: [98, 25, 22, 19, 17, 10, 9, 2, 1],
+            backgroundColor: '#36A2EB'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Articles by Source'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Top Startup & Tech News. Updated daily with ranked startup and tech news.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_title }} — Statistics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>News Analytics Dashboard</h2>
+    <p class="subtitle">Insights and statistics from the news aggregation pipeline</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>📊 Overview</h3>
+        <div class="stat-item">
+            <span class="stat-label">Total Editions:</span>
+            <span class="stat-value">{{ stats.total_editions }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Articles:</span>
+            <span class="stat-value">{{ stats.total_articles }}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Date Range:</span>
+            <span class="stat-value">{{ stats.date_range[0] }} to {{ stats.date_range[1] }}</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <h3>🏷️ Top Categories</h3>
+        {% for category, count in stats.top_categories.items() %}
+        <div class="stat-item">
+            <span class="stat-label">{{ category|title }}:</span>
+            <span class="stat-value">{{ count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="stat-card">
+        <h3>📰 Top Sources</h3>
+        {% for source, count in stats.top_sources.items() %}
+        <div class="stat-item">
+            <span class="stat-label">{{ source }}:</span>
+            <span class="stat-value">{{ count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="stat-card">
+        <h3>📈 Recent Activity</h3>
+        <div class="recent-activity">
+            {% for edition in recent_editions %}
+            <div class="activity-item">
+                <span class="activity-date">{{ edition.date }}</span>
+                <span class="activity-count">{{ edition.total_articles }} articles</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="charts-section">
+    <h3>📊 Visual Analytics</h3>
+    <div class="chart-container">
+        <canvas id="categoryChart" width="400" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="sourceChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Category distribution chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ stats.top_categories.keys() | list | tojson }},
+        datasets: [{
+            data: {{ stats.top_categories.values() | list | tojson }},
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Article Distribution by Category'
+            }
+        }
+    }
+});
+
+// Source distribution chart
+const sourceCtx = document.getElementById('sourceChart').getContext('2d');
+const sourceChart = new Chart(sourceCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ stats.top_sources.keys() | list | tojson }},
+        datasets: [{
+            label: 'Articles',
+            data: {{ stats.top_sources.values() | list | tojson }},
+            backgroundColor: '#36A2EB'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Articles by Source'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %} 

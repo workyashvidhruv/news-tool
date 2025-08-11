@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site_title }} — {{ date }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Top Startup & Tech News — {{ date }}</h2>
+    <p class="subtitle">{{ total_articles }} stories ranked by impact, virality, and controversy</p>
+</div>
+
+{% if articles %}
+<div class="articles-list">
+    {% for article in articles %}
+    <article class="article-card">
+        <div class="article-header">
+            <span class="rank">#{{ loop.index }}</span>
+            <h3 class="article-title">
+                <a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title }}</a>
+            </h3>
+        </div>
+        
+        <div class="article-summary">
+            {{ article.summary }}
+        </div>
+        
+        <div class="article-meta">
+            <div class="sources">
+                <strong>Sources:</strong>
+                {% for source in article.sources %}
+                {% if source is mapping %}
+                <a href="{{ source.url }}" target="_blank" rel="noopener">{{ source.name }}</a>{% if not loop.last %}, {% endif %}
+                {% else %}
+                <a href="{{ article.url }}" target="_blank" rel="noopener">{{ source }}</a>{% if not loop.last %}, {% endif %}
+                {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if article.reactions %}
+            <div class="reactions">
+                <strong>Public opinions:</strong>
+                {% for reaction in article.reactions %}
+                <div class="reaction">
+                    <span class="platform">{{ reaction.platform }}</span>
+                    <blockquote class="reaction-text">{{ reaction.text }}</blockquote>
+                    <div class="reaction-meta">
+                        <span class="author">{{ reaction.author }}</span>
+                        {% if reaction.permalink %}
+                        <a href="{{ reaction.permalink }}" target="_blank" rel="noopener">View</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="article-scores">
+            <div class="score-badges">
+                <span class="badge category-{{ article.category }}">{{ article.category|title }}</span>
+                <span class="badge score-final">{{ "%.1f"|format(article.scores.final) }}</span>
+                <span class="badge score-virality">{{ "%.1f"|format(article.scores.virality) }}</span>
+                <span class="badge score-impact">{{ "%.1f"|format(article.scores.impact) }}</span>
+                <span class="badge score-controversy">{{ "%.1f"|format(article.scores.controversy) }}</span>
+            </div>
+            
+            <div class="tags">
+                {% for tag in article.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="social-sharing">
+                <button onclick="shareArticle('{{ article.title }}', '{{ article.url }}')" class="share-btn" title="Share article">
+                    📤 Share
+                </button>
+                <button onclick="copyLink('{{ article.url }}')" class="share-btn" title="Copy link">
+                    🔗 Copy Link
+                </button>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="no-articles">
+    <p>No articles available for today. Check back later!</p>
+</div>
+{% endif %}
+
+<script>
+function shareArticle(title, url) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            url: url
+        });
+    } else {
+        // Fallback: copy to clipboard
+        copyLink(url);
+    }
+}
+
+function copyLink(url) {
+    navigator.clipboard.writeText(url).then(function() {
+        // Show a brief notification
+        const notification = document.createElement('div');
+        notification.textContent = 'Link copied!';
+        notification.className = 'copy-notification';
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
