@@ -52,15 +52,15 @@
         <h3>📊 Overview</h3>
         <div class="stat-item">
             <span class="stat-label">Total Editions:</span>
-            <span class="stat-value">2</span>
+            <span class="stat-value">4</span>
         </div>
         <div class="stat-item">
             <span class="stat-label">Total Articles:</span>
-            <span class="stat-value">218</span>
+            <span class="stat-value">248</span>
         </div>
         <div class="stat-item">
             <span class="stat-label">Date Range:</span>
-            <span class="stat-value">2025-08-10 to 2025-08-11</span>
+            <span class="stat-value">2025-08-10 to 2025-08-14</span>
         </div>
     </div>
 
@@ -69,12 +69,12 @@
         
         <div class="stat-item">
             <span class="stat-label">Global:</span>
-            <span class="stat-value">162</span>
+            <span class="stat-value">169</span>
         </div>
         
         <div class="stat-item">
             <span class="stat-label">India:</span>
-            <span class="stat-value">56</span>
+            <span class="stat-value">79</span>
         </div>
         
     </div>
@@ -88,13 +88,18 @@
         </div>
         
         <div class="stat-item">
+            <span class="stat-label">Inc42:</span>
+            <span class="stat-value">39</span>
+        </div>
+        
+        <div class="stat-item">
             <span class="stat-label">r/technology:</span>
             <span class="stat-value">28</span>
         </div>
         
         <div class="stat-item">
             <span class="stat-label">Wired:</span>
-            <span class="stat-value">23</span>
+            <span class="stat-value">26</span>
         </div>
         
         <div class="stat-item">
@@ -108,18 +113,13 @@
         </div>
         
         <div class="stat-item">
-            <span class="stat-label">Inc42:</span>
-            <span class="stat-value">16</span>
-        </div>
-        
-        <div class="stat-item">
             <span class="stat-label">The Verge:</span>
             <span class="stat-value">10</span>
         </div>
         
         <div class="stat-item">
             <span class="stat-label">TechCrunch:</span>
-            <span class="stat-value">3</span>
+            <span class="stat-value">7</span>
         </div>
         
         <div class="stat-item">
@@ -132,6 +132,16 @@
     <div class="stat-card">
         <h3>📈 Recent Activity</h3>
         <div class="recent-activity">
+            
+            <div class="activity-item">
+                <span class="activity-date">2025-08-14</span>
+                <span class="activity-count">15 articles</span>
+            </div>
+            
+            <div class="activity-item">
+                <span class="activity-date">2025-08-13</span>
+                <span class="activity-count">15 articles</span>
+            </div>
             
             <div class="activity-item">
                 <span class="activity-date">2025-08-11</span>
@@ -166,7 +176,7 @@ const categoryChart = new Chart(categoryCtx, {
     data: {
         labels: ["global", "india"],
         datasets: [{
-            data: [162, 56],
+            data: [169, 79],
             backgroundColor: [
                 '#FF6384',
                 '#36A2EB',
@@ -192,10 +202,10 @@ const sourceCtx = document.getElementById('sourceChart').getContext('2d');
 const sourceChart = new Chart(sourceCtx, {
     type: 'bar',
     data: {
-        labels: ["Reuters Technology", "r/technology", "Wired", "YourStory", "Livemint", "Inc42", "The Verge", "TechCrunch", "r/indianstartups"],
+        labels: ["Reuters Technology", "Inc42", "r/technology", "Wired", "YourStory", "Livemint", "The Verge", "TechCrunch", "r/indianstartups"],
         datasets: [{
             label: 'Articles',
-            data: [98, 28, 23, 20, 19, 16, 10, 3, 1],
+            data: [98, 39, 28, 26, 20, 19, 10, 7, 1],
             backgroundColor: '#36A2EB'
         }]
     },
